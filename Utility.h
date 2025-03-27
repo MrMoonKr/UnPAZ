@@ -6,7 +6,9 @@
 #include <memory>
 #include <cstdio>
 #include <time.h>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 
 ///printf formatting for std::string
 ///If you need "width" argument in pattern, use this instead of boost::format
@@ -32,25 +34,17 @@ bool printProgress(); ///clear the line
 std::string getProgressString(uint32_t current, uint32_t maximum, std::string text);
 std::string getProgressString();
 
-
-#if _MSC_VER >= 1910 ///Visual Studio 2017 has implemented std::experimental::filesystem, use it instead of boost libraries.
 #include <filesystem>
 
+
 /// automatically rename file (it adds [] to the end of file name)
-void autoRenameFile(std::experimental::filesystem::path &FilePath);
+void autoRenameFile(fs::path &FilePath);
 ///ask if you want to automatically rename file (it adds [] to the end of file name)
 ///returns char which option was selected - (y)es / (N)o / (a)lways / ne(v)er / (e)xit
-char autoRenameFilePrompt(std::experimental::filesystem::path &FilePath);
+char autoRenameFilePrompt(fs::path &FilePath);
 ///Ask if you want to create directories needed for file specified in FilePath.
 ///returns char which option was selected - (Y)es / (a)lways / (s)kip file / (e)xit
-char createPathPrompt(std::experimental::filesystem::path &FilePath);
+char createPathPrompt(fs::path &FilePath);
 ///returns path relative to current path (because eperimental::filesystem doesn't have implemented boost::filesystem::relative)
-std::experimental::filesystem::path relativePathTo(std::experimental::filesystem::path from, std::experimental::filesystem::path to);
+fs::path relativePathTo(fs::path from, fs::path to);
 
-#else ///in other compilers we will rely on boost libraries
-#include <boost/filesystem.hpp>    ///boost headers (for GCC add linker arguments: -lboost_system-mt -lboost_filesystem-mt)
-
-void autoRenameFile(boost::filesystem::path &FilePath);
-char autoRenameFilePrompt(boost::filesystem::path &FilePath);
-char createPathPrompt(boost::filesystem::path &FilePath);
-#endif

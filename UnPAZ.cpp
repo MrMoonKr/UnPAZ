@@ -1,19 +1,26 @@
 #include "UnPAZ.h"
 #include "Utility.h"
 
-#if _MSC_VER >= 1910
-#include "BDOFiles-exp.h"
+// #if _MSC_VER >= 1910
+// #include "BDOFiles-exp.h"
 
-namespace fs = std::experimental::filesystem;
-#else
-#include "BDOFiles-boost.h"
+// namespace fs = std::experimental::filesystem;
+// #else
+// #include "BDOFiles-boost.h"
 
-namespace fs = boost::filesystem;
-#endif
+// namespace fs = boost::filesystem;
+// #endif
+
+//#include "BDOFiles-exp.h"
+
+#include "BDOFiles.h"
+
+namespace fs = std::filesystem;
 
 using namespace std;
 
-namespace {
+namespace  
+{
 	fs::path SourcePath;
 	fs::path TargetPath;
 	string sMask;
@@ -131,61 +138,67 @@ namespace {
 }
 
 ///main function
-int main(int argc, char **argv)
+int main( int argc, char* argv[] )
 {
-	///parse commandline, function will set values of sSourceFileName, sTargetPath, sMask, bList and bVerbose
-	parseCommandline(argc, argv);
-	if (!bQuiet) {
-		printVersion();
+    /// parse commandline, function will set values of sSourceFileName, sTargetPath, sMask, bList and bVerbose
+    parseCommandline( argc, argv );
+    if ( !bQuiet )
+    {
+        printVersion();
 
-		cout << "Type UnPAZ -h for help.\n" <<
-			"\nSource file: " << SourcePath.string() <<
-			"\nTarget path: " << TargetPath.string() <<
-			"\nFilter mask: " << sMask << endl;
-	}
+        cout << "Type UnPAZ -h for help.\n"
+             << "\nSource file: " << SourcePath.string() << "\nTarget path: " << TargetPath.string() << "\nFilter mask: " << sMask << endl;
+    }
 
+    if ( _stricmp( SourcePath.extension().string().c_str(), ".meta" ) == 0 )
+    {
+        /// get files info from .meta
+        BDO::MetaFile MetaFile( SourcePath, bQuiet );
 
-	if (_stricmp(SourcePath.extension().string().c_str(), ".meta") == 0) {
-		///get files info from .meta
-		BDO::MetaFile MetaFile(SourcePath, bQuiet);
+        MetaFile.SetQuiet( bQuiet );
+        MetaFile.SetNoFolders( bNoFolders );
+        MetaFile.SetYesToAll( bYesToAll );
 
-		MetaFile.SetQuiet(bQuiet);
-		MetaFile.SetNoFolders(bNoFolders);
-		MetaFile.SetYesToAll(bYesToAll);
+        if ( bList )
+        {
+            if ( sMask == "*.*" || sMask == "*" )
+            {
+                sMask.clear();
+            }
+            MetaFile.ListFileMask( sMask );
+        }
+        else
+        {
+            MetaFile.ExtractFileMask( sMask, TargetPath );
+        }
+    }
+    else if ( _stricmp( SourcePath.extension().string().c_str(), ".paz" ) == 0 )
+    {
+        /// get files info from .paz
+        BDO::PazFile PazFile(SourcePath, bQuiet);
 
-		if (bList) {
-			if (sMask == "*.*" || sMask == "*") {
-				sMask.clear();
-			}
-			MetaFile.ListFileMask(sMask);
-		}
-		else {
-			MetaFile.ExtractFileMask(sMask, TargetPath);
-		}
-	}
-	else if (_stricmp(SourcePath.extension().string().c_str(), ".paz") == 0) {
-		///get files info from .paz
-		BDO::PazFile PazFile(SourcePath, bQuiet);
+        PazFile.SetQuiet(bQuiet);
+        PazFile.SetNoFolders(bNoFolders);
+        PazFile.SetYesToAll(bYesToAll);
 
-		PazFile.SetQuiet(bQuiet);
-		PazFile.SetNoFolders(bNoFolders);
-		PazFile.SetYesToAll(bYesToAll);
+        if (bList)
+        {
+            if (sMask == "*.*" || sMask == "*")
+            {
+                sMask.clear();
+            }
+            PazFile.ListFileMask(sMask);
+        }
+        else
+        {
+            PazFile.ExtractFileMask(sMask, TargetPath);
+        }
+    }
+    else
+    {
+        cerr << "ERROR: Input file must have extension .meta or .paz. File extension " << SourcePath.extension().string() << " is not supported." << endl;
+        exit(-1);
+    }
 
-		if (bList) {
-			if (sMask == "*.*" || sMask == "*") {
-				sMask.clear();
-			}
-			PazFile.ListFileMask(sMask);
-		}
-		else {
-			PazFile.ExtractFileMask(sMask, TargetPath);
-		}
-	}
-	else {
-		cerr << "ERROR: Input file must have extension .meta or .paz. File extension " << SourcePath.extension().string() << " is not supported." << endl;
-		exit(-1);
-	}
-
-
-	return 0;
+    return 0;
 }

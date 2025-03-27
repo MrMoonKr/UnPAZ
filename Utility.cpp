@@ -1,11 +1,13 @@
 #include "Utility.h"
 
 
-#if _MSC_VER >= 1910
-namespace fs = std::experimental::filesystem;
-#else
-namespace fs = boost::filesystem;
-#endif
+// #if _MSC_VER >= 1910
+// namespace fs = std::experimental::filesystem;
+// #else
+// namespace fs = boost::filesystem;
+// #endif
+
+namespace fs = std::filesystem;
 
 ///--------------------------------------------------------------------------
 /// Based on Alessandro Felice Cantatore's code (szWildMatch7)
