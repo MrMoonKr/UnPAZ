@@ -17,6 +17,9 @@ project( UnPAZ
 find_package( ZLIB REQUIRED )
 # target_link_libraries( main PRIVATE ZLIB::ZLIB )
 
+find_package( dxsdk-d3dx CONFIG REQUIRED )
+# target_link_libraries( main PRIVATE Microsoft::D3DX9 Microsoft::D3DX10 Microsoft::D3DX11 )
+
 
 add_executable( UnPAZ
     BDO.cpp BDO.h
